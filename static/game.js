@@ -95,11 +95,11 @@ const SoundFX = {
     }
 };
 
-// Bank Soal Biologi Cadangan
+// Bank Soal Biologi Cadangan (Otomatis diperbarui dari Python Flask /api/soal)
 let bankSoal = [
-    { tanya: "Organel sel yang berfungsi menghasilkan energi ATP adalah...", opsi: ["Mitokondria", "Ribosom", "Lisosom", "Badan Golgi"], benar: 0 },
-    { tanya: "Proses tumbuhan membuat makanan dengan cahaya matahari disebut...", opsi: ["Respirasi", "Adaptasi", "Fotosintesis", "Transpirasi"], benar: 2 },
-    { tanya: "Hutan pesisir yang melindungi pantai Madura dari abrasi adalah...", opsi: ["Hutan Hujan", "Hutan Mangrove", "Sabana", "Stepa"], benar: 1 }
+    { tanya: "Ilmuwan yang pertama kali menemukan sel pada tahun 1665 adalah...", opsi: ["Robert Hooke", "Charles Darwin", "Gregor Mendel", "Louis Pasteur"], benar: 0 },
+    { tanya: "Organel sel yang berfungsi menghasilkan energi (ATP) adalah...", opsi: ["Ribosom", "Mitokondria", "Vakuola", "Lisosom"], benar: 1 },
+    { tanya: "Dalam sistem gerak manusia, tulang berperan sebagai alat gerak...", opsi: ["Aktif", "Pasif", "Bebas", "Sadar"], benar: 1 }
 ];
 
 fetch("/api/soal")
@@ -621,6 +621,19 @@ function resetSegmenArena() {
     }
 }
 
+// ==========================================
+// FIX MAP 3D: SELALU TERENDER PENUH DI SEKITAR KAMERA
+// ==========================================
+function updateTrackForCamera(focusDist) {
+    const startSlot = Math.floor(focusDist / segLength);
+    for (let i = 0; i < numSegments; i++) {
+        const slot = startSlot - 2 + i;
+        const segIdx = ((slot % numSegments) + numSegments) % numSegments;
+        trackSegments[segIdx].position.z = -slot * segLength;
+    }
+    waterMesh.position.z = -focusDist - 600;
+}
+
 function kembaliKeMenu() {
     isRacing = false;
     isCountingDown = false;
@@ -725,9 +738,9 @@ function animate3D() {
 
     // KONFIGURASI KESULITAN AI (Target Win Rate: Mudah 90%, Normal 60%, Susah 30%)
     const aiConfig = {
-        mudah:  { base: 23, boostMult: 0.2, boostAdd: 6,  boostDur: 25 }, // 90% Menang: AI lebih lambat dari laju normal pemain
-        normal: { base: 30, boostMult: 0.9, boostAdd: 14, boostDur: 35 }, // 60% Menang: Imbang, butuh jawaban benar rutin untuk unggul
-        sulit:  { base: 39, boostMult: 2.2, boostAdd: 18, boostDur: 42 }  // 30% Menang: AI kencang & sering boost, wajib kombo cepat
+        mudah:  { base: 23, boostMult: 0.2, boostAdd: 6,  boostDur: 25 },
+        normal: { base: 30, boostMult: 0.9, boostAdd: 14, boostDur: 35 },
+        sulit:  { base: 39, boostMult: 2.2, boostAdd: 18, boostDur: 42 }
     }[aiLevel] || { base: 30, boostMult: 0.9, boostAdd: 14, boostDur: 35 };
 
     racers.forEach((r, idx) => {
@@ -812,14 +825,6 @@ function animate3D() {
 
     updateParticles();
 
-    const trailZ = Math.max(...racers.map(r => -r.dist));
-    trackSegments.forEach(seg => {
-        if (seg.position.z > trailZ + 65) {
-            seg.position.z -= numSegments * segLength;
-        }
-    });
-    waterMesh.position.z = trailZ - 600;
-
     if (isRacing) {
         const ranking = [...racers].sort((a, b) => {
             if (a.finishTime !== null && b.finishTime !== null) {
@@ -902,24 +907,28 @@ function animate3D() {
             camP1.updateProjectionMatrix();
             renderer.setViewport(0, H / 2, W, H / 2);
             renderer.setScissor(0, H / 2, W, H / 2);
+            updateTrackForCamera(racers[0].dist);
             renderer.render(scene, camP1);
 
             camP2.aspect = W / (H / 2);
             camP2.updateProjectionMatrix();
             renderer.setViewport(0, 0, W, H / 2);
             renderer.setScissor(0, 0, W, H / 2);
+            updateTrackForCamera(racers[1].dist);
             renderer.render(scene, camP2);
         } else {
             camP1.aspect = (W / 2) / H;
             camP1.updateProjectionMatrix();
             renderer.setViewport(0, 0, W / 2, H);
             renderer.setScissor(0, 0, W / 2, H);
+            updateTrackForCamera(racers[0].dist);
             renderer.render(scene, camP1);
 
             camP2.aspect = (W / 2) / H;
             camP2.updateProjectionMatrix();
             renderer.setViewport(W / 2, 0, W / 2, H);
             renderer.setScissor(W / 2, 0, W / 2, H);
+            updateTrackForCamera(racers[1].dist);
             renderer.render(scene, camP2);
         }
     } else {
@@ -933,6 +942,7 @@ function animate3D() {
             camP1.lookAt(racers[0].x * 0.25, lookY, -racers[0].dist - 22);
         }
         renderer.setViewport(0, 0, W, H);
+        updateTrackForCamera(racers[0].dist);
         renderer.render(scene, camP1);
     }
 }
