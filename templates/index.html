@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Balap Perahu 3D – Festival Rokat Tasè' Madura</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <!-- CANVAS 3D WEBGL FULLSCREEN -->
+    <canvas id="threeCanvas" class="three-canvas"></canvas>
+
+    <!-- ==========================================
+         1. LAYAR MENU UTAMA
+         ========================================== -->
+    <div id="menuOverlay" class="overlay-bg">
+        <div class="menu-card">
+            <div class="badge-top">🧬 BIOLOGI SMA • FESTIVAL ROKAT TASÈ' MADURA</div>
+            <h1 class="menu-title">Balap Perahu 3D – Rokat Tasè' Pintar</h1>
+            <p class="menu-subtitle">Jawab soal Biologi dengan benar untuk semburan turbo perahu Sakera &amp; Marlena! Pilih mode <strong>1 Pemain vs AI</strong> atau <strong>Duel 2 Layar</strong>.</p>
+
+            <div class="section-label">PILIH MODE PERMAINAN</div>
+            <div class="mode-grid">
+                <button id="btnModeAI" class="mode-btn active" onclick="pilihMode('ai')">🤖 1 Pemain vs AI</button>
+                <button id="btnModeDuel" class="mode-btn" onclick="pilihMode('duel')">👥 Duel 2 Layar (Split-Screen)</button>
+            </div>
+
+            <div id="playerSetupGrid" class="player-setup-grid single">
+                <div class="player-box">
+                    <div class="box-label" id="labelP1">NAMA PEMAIN</div>
+                    <input type="text" id="inputNamaP1" class="text-input" value="Sakera 1" maxlength="14">
+                    <div class="box-label center">WARNA PERAHU P1</div>
+                    <div class="color-picker" id="colorsP1">
+                        <button class="color-dot active" style="background:#10b981" onclick="pilihWarna(1, '#10b981', this)"></button>
+                        <button class="color-dot" style="background:#0284c7" onclick="pilihWarna(1, '#0284c7', this)"></button>
+                        <button class="color-dot" style="background:#f97316" onclick="pilihWarna(1, '#f97316', this)"></button>
+                        <button class="color-dot" style="background:#ec4899" onclick="pilihWarna(1, '#ec4899', this)"></button>
+                    </div>
+                </div>
+
+                <div class="player-box" id="boxP2" style="display:none;">
+                    <div class="box-label">NAMA PEMAIN 2 (KANAN / BAWAH)</div>
+                    <input type="text" id="inputNamaP2" class="text-input" value="Marlena 2" maxlength="14">
+                    <div class="box-label center">WARNA PERAHU P2</div>
+                    <div class="color-picker" id="colorsP2">
+                        <button class="color-dot" style="background:#10b981" onclick="pilihWarna(2, '#10b981', this)"></button>
+                        <button class="color-dot active" style="background:#0284c7" onclick="pilihWarna(2, '#0284c7', this)"></button>
+                        <button class="color-dot" style="background:#9333ea" onclick="pilihWarna(2, '#9333ea', this)"></button>
+                        <button class="color-dot" style="background:#ef4444" onclick="pilihWarna(2, '#ef4444', this)"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dropdown-grid">
+                <div>
+                    <div class="section-label">JARAK LINTASAN</div>
+                    <select id="selectJarak" class="select-input">
+                        <option value="1200">⛵ Pendek 1200m</option>
+                        <option value="1800" selected>🏆 Standar 1800m</option>
+                        <option value="2500">🌊 Panjang 2500m</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="section-label">TINGKAT LAWAN AI</div>
+                    <select id="selectAI" class="select-input">
+                        <option value="mudah">🐢 Mudah</option>
+                        <option value="normal" selected>🚤 Normal</option>
+                        <option value="sulit">⚡ Sulit</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="btnMulai" class="start-main-btn green" onclick="mulaiBalapan()">🏁 Mulai Balapan (1 vs AI)</button>
+
+            <!-- PANDUAN TOMBOL LAPTOP (MUNCUL OTOMATIS SAAT MODE DUEL) -->
+            <div id="keyboardGuide" class="keyboard-guide" style="display:none;">
+                <div class="kb-col">
+                    <span class="kb-title p1">🎮 Pemain 1 (Kiri)</span>
+                    <div>Jawab: <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd></div>
+                    <div>Jalur: <kbd>A</kbd> <kbd>D</kbd></div>
+                </div>
+                <div class="kb-col">
+                    <span class="kb-title p2">🎮 Pemain 2 (Kanan)</span>
+                    <div>Jawab: <kbd>7</kbd> <kbd>8</kbd> <kbd>9</kbd> <kbd>0</kbd></div>
+                    <div>Jalur: <kbd>◀</kbd> <kbd>▶</kbd></div>
+                </div>
+            </div>
+
+            <div class="device-hint">💡 Laptop: Duel Kiri-Kanan • Android/HP: Duel Atas-Bawah Otomatis</div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         2. HUD & PANEL KUIS DI ATAS CANVAS 3D
+         ========================================== -->
+    <div id="gameContainer" class="game-container" style="display:none;">
+        <header class="race-hud">
+            <div class="hud-stats">
+                <div><span>POS</span><strong id="hudPosP1">1/4</strong></div>
+                <div><span>KM/J</span><strong id="hudSpeedP1">28</strong></div>
+                <div><span>COMBO</span><strong id="hudComboP1">0x</strong></div>
+            </div>
+
+            <div class="hud-progress-wrap">
+                <div class="progress-labels">
+                    <span>START</span>
+                    <span id="hudDistText">0m / 1800m</span>
+                    <span>FINIS</span>
+                </div>
+                <div class="progress-track">
+                    <div id="progressBarP1" class="progress-fill"></div>
+                    <div id="markerP1" class="progress-marker p1"></div>
+                    <div id="markerP2" class="progress-marker p2"></div>
+                    <div id="markerP3" class="progress-marker p3"></div>
+                    <div id="markerP4" class="progress-marker p4"></div>
+                </div>
+            </div>
+
+            <div class="hud-right-group">
+                <div class="hud-stats" id="hudStatsP2" style="display:none;">
+                    <div><span>P2 POS</span><strong id="hudPosP2">2/4</strong></div>
+                    <div><span>KM/J</span><strong id="hudSpeedP2">28</strong></div>
+                    <div><span>COMBO</span><strong id="hudComboP2">0x</strong></div>
+                </div>
+                <button class="hud-menu-btn" onclick="kembaliKeMenu()">🏠 Menu</button>
+            </div>
+        </header>
+
+        <!-- HITUNG MUNDUR 3, 2, 1, GAS! -->
+        <div id="countdownText" class="countdown-text" style="display:none;">3</div>
+
+        <!-- OVERLAY PANEL KUIS -->
+        <main id="splitArena" class="split-arena">
+            <section class="viewport-pane" id="paneP1">
+                <div class="quiz-panel">
+                    <div class="quiz-header">
+                        <span class="player-tag" id="tagP1">⚡ Jawab benar = Turbo (1-4 • A/D)</span>
+                        <div class="lane-btns">
+                            <button class="lane-btn blue" onclick="geserJalur(1, -1)">◀ Jalur</button>
+                            <button class="lane-btn blue" onclick="geserJalur(1, 1)">Jalur ▶</button>
+                        </div>
+                    </div>
+                    <div class="quiz-question" id="soalP1">Memuat soal Biologi...</div>
+                    <div class="quiz-options" id="opsiP1"></div>
+                </div>
+            </section>
+
+            <section class="viewport-pane" id="paneP2" style="display:none;">
+                <div class="quiz-panel">
+                    <div class="quiz-header">
+                        <span class="player-tag p2" id="tagP2">⚡ Jawab benar = Turbo (7-0 • ◀/▶)</span>
+                        <div class="lane-btns">
+                            <button class="lane-btn purple" onclick="geserJalur(2, -1)">◀ Jalur</button>
+                            <button class="lane-btn purple" onclick="geserJalur(2, 1)">Jalur ▶</button>
+                        </div>
+                    </div>
+                    <div class="quiz-question" id="soalP2">Memuat soal Biologi...</div>
+                    <div class="quiz-options" id="opsiP2"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ==========================================
+         3. LAYAR HASIL KEMENANGAN & MEDALI
+         ========================================== -->
+    <div id="resultOverlay" class="overlay-bg" style="display:none;">
+        <div class="result-card">
+            <div class="trophy-icon" id="trophyIcon">🏆</div>
+            <h2 id="winnerTitle" class="winner-title">JUARA 1! LUAR BIASA!</h2>
+            <p id="winnerSubtitle" class="winner-sub">Festival Rokat Tasè' Madura Selesai</p>
+
+            <div class="stat-result-box" id="resBoxP1">
+                <div class="res-name" id="resNameP1">🚤 PEMAIN 1 (PERINGKAT #1)</div>
+                <div class="res-metrics">
+                    <div><span>WAKTU / JARAK</span><strong id="resTimeP1">0s</strong></div>
+                    <div><span>JAWABAN BENAR</span><strong id="resCorrectP1" class="green-txt">0 / 0</strong></div>
+                    <div><span>AKURASI</span><strong id="resAccP1" class="blue-txt">0%</strong></div>
+                </div>
+            </div>
+
+            <div class="stat-result-box p2-box" id="resBoxP2" style="display:none;">
+                <div class="res-name p2-txt" id="resNameP2">🚤 PEMAIN 2 (PERINGKAT #2)</div>
+                <div class="res-metrics">
+                    <div><span>WAKTU / JARAK</span><strong id="resTimeP2">0s</strong></div>
+                    <div><span>JAWABAN BENAR</span><strong id="resCorrectP2" class="purple-txt">0 / 0</strong></div>
+                    <div><span>AKURASI</span><strong id="resAccP2" class="blue-txt">0%</strong></div>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <button class="start-main-btn green" onclick="mulaiBalapan()">🔄 Balap Lagi</button>
+                <button class="menu-secondary-btn" onclick="kembaliKeMenu()">🏠 Menu Utama</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/game.js"></script>
+</body>
+</html>

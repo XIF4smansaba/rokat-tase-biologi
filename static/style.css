@@ -1,0 +1,511 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background: #0c4a6e;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+}
+
+/* CANVAS 3D FULLSCREEN */
+.three-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 1;
+    display: block;
+}
+
+/* OVERLAY MENU & HASIL */
+.overlay-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 47, 73, 0.42);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 50;
+    overflow-y: auto;
+}
+
+.menu-card, .result-card {
+    background: #ffffff;
+    border: 4px solid #facc15;
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    max-width: 660px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    color: #1e293b;
+}
+
+.badge-top {
+    display: inline-block;
+    background: #f59e0b;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 14px;
+    border-radius: 99px;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.menu-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 6px;
+}
+
+.menu-subtitle {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+
+.section-label, .box-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+.box-label.center { text-align: center; margin-top: 10px; }
+
+.mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.mode-btn {
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid #cbd5e1;
+    background: #f8fafc;
+    font-weight: 700;
+    font-size: 13px;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.mode-btn.active {
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #0284c7;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+}
+
+.player-setup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+.player-setup-grid.single { grid-template-columns: 1fr; }
+
+.player-box {
+    border: 1.5px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 14px;
+    padding: 12px;
+}
+
+.text-input, .select-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    background: #ffffff;
+}
+
+.color-picker {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.color-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: transform 0.12s;
+}
+.color-dot.active {
+    border-color: #0f172a;
+    transform: scale(1.15);
+}
+
+.dropdown-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.start-main-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 800;
+    color: #ffffff;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+.start-main-btn:active { transform: scale(0.98); }
+.start-main-btn.green { background: #059669; box-shadow: 0 4px 0 #047857; }
+.start-main-btn.purple { background: #7c3aed; box-shadow: 0 4px 0 #6d28d9; }
+
+/* PANDUAN KEYBOARD DUEL LAPTOP */
+.keyboard-guide {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: #f1f5f9;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #334155;
+}
+.kb-col {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.kb-title { font-weight: 800; font-size: 11px; }
+.kb-title.p1 { color: #0284c7; }
+.kb-title.p2 { color: #7c3aed; }
+.keyboard-guide kbd {
+    display: inline-block;
+    background: #ffffff;
+    border: 1.5px solid #94a3b8;
+    border-bottom-width: 3px;
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.device-hint {
+    text-align: center;
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 10px;
+}
+
+/* HUD & OVERLAY GAME TRANSPARAN DI ATAS 3D */
+.game-container {
+    position: fixed;
+    inset: 0;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.race-hud {
+    background: rgba(15, 23, 42, 0.92);
+    color: #ffffff;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 2px solid #334155;
+    pointer-events: auto;
+}
+
+.hud-stats {
+    display: flex;
+    gap: 14px;
+    font-size: 11px;
+}
+.hud-stats div { display: flex; flex-direction: column; align-items: center; }
+.hud-stats span { color: #94a3b8; font-size: 9px; font-weight: 700; }
+.hud-stats strong { color: #facc15; font-size: 14px; }
+
+.hud-progress-wrap { flex: 1; max-width: 480px; }
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 700;
+    color: #cbd5e1;
+    margin-bottom: 4px;
+}
+.progress-track {
+    height: 12px;
+    background: #1e293b;
+    border-radius: 99px;
+    position: relative;
+    overflow: hidden;
+}
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #10b981, #facc15);
+    border-radius: 99px;
+}
+.progress-marker {
+    position: absolute;
+    top: 1px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    transform: translateX(-50%);
+}
+.progress-marker.p1 { background: #10b981; left: 0%; }
+.progress-marker.p2 { background: #a855f7; left: 0%; }
+.progress-marker.p3 { background: #f97316; left: 0%; }
+.progress-marker.p4 { background: #ef4444; left: 0%; }
+
+.hud-right-group { display: flex; align-items: center; gap: 10px; }
+.hud-menu-btn {
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* HITUNG MUNDUR */
+.countdown-text {
+    position: fixed;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(72px, 14vw, 130px);
+    font-weight: 900;
+    color: #facc15;
+    text-shadow: 0 8px 20px rgba(0, 0, 0, 0.55), 0 4px 0 #b45309;
+    z-index: 40;
+    pointer-events: none;
+}
+
+@keyframes popCount {
+    0% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+    35% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.9; }
+}
+
+/* SPLIT-SCREEN RESPONSIF (LAPTOP: KIRI-KANAN) */
+.split-arena {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    position: relative;
+}
+
+.viewport-pane {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 12px;
+}
+
+.split-arena.duel-active .viewport-pane:first-child {
+    border-right: 3px solid #facc15;
+}
+
+.quiz-panel {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 14px;
+    padding: 10px 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    border: 2px solid #e2e8f0;
+    pointer-events: auto;
+    max-width: 780px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+.player-tag { font-size: 11px; font-weight: 800; color: #0284c7; }
+.player-tag.p2 { color: #7c3aed; }
+
+.lane-btns { display: flex; gap: 6px; }
+.lane-btn {
+    border: none;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.lane-btn.blue { background: #0284c7; }
+.lane-btn.purple { background: #7c3aed; }
+
+.quiz-question {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.opt-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 9px 8px;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    transition: transform 0.08s;
+}
+.opt-btn:active { transform: scale(0.96); }
+.opt-c0 { background: #0ea5e9; }
+.opt-c1 { background: #10b981; }
+.opt-c2 { background: #f59e0b; }
+.opt-c3 { background: #a855f7; }
+.opt-wrong { background: #ef4444 !important; }
+
+/* RESPONSIF ANDROID / HP: PANEL SOAL NAIK SEDIKIT & RAPI */
+@media (max-width: 768px) {
+    .keyboard-guide { display: none !important; }
+    .split-arena { flex-direction: column; }
+    .split-arena.duel-active .viewport-pane:first-child {
+        border-right: none;
+        border-bottom: 3px solid #facc15;
+    }
+    .viewport-pane {
+        padding: 8px 10px 34px 10px;
+    }
+    .split-arena.duel-active .viewport-pane {
+        padding: 6px 8px 12px 8px;
+    }
+    .quiz-panel {
+        padding: 8px 10px;
+        border-radius: 14px;
+    }
+    .quiz-header {
+        gap: 6px;
+        margin-bottom: 6px;
+    }
+    .player-tag {
+        font-size: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 56%;
+    }
+    .lane-btns {
+        flex-shrink: 0;
+        gap: 5px;
+    }
+    .lane-btn {
+        white-space: nowrap;
+        font-size: 10px;
+        padding: 5px 8px;
+    }
+    .quiz-question {
+        font-size: 12px;
+        margin-bottom: 6px;
+    }
+    .opt-btn {
+        padding: 8px 6px;
+        font-size: 11px;
+    }
+    .race-hud {
+        padding: 6px 10px;
+        gap: 8px;
+    }
+    .hud-stats { gap: 8px; }
+    .hud-stats strong { font-size: 12px; }
+    .hud-menu-btn { padding: 6px 10px; font-size: 11px; }
+    .menu-card { padding: 16px; }
+    .player-setup-grid { grid-template-columns: 1fr; }
+}
+
+/* LAYAR HASIL / PODIUM */
+.result-card { text-align: center; }
+.trophy-icon { font-size: 52px; margin-bottom: 6px; }
+.winner-title { font-size: 24px; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+.winner-sub { font-size: 13px; color: #64748b; margin-bottom: 16px; }
+
+.stat-result-box {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+    text-align: left;
+}
+.stat-result-box.p2-box { background: #faf5ff; border-color: #e9d5ff; }
+.res-name { font-size: 12px; font-weight: 800; color: #059669; margin-bottom: 10px; }
+.res-name.p2-txt { color: #7c3aed; }
+
+.res-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    text-align: center;
+}
+.res-metrics span { display: block; font-size: 10px; color: #64748b; font-weight: 700; margin-bottom: 4px; }
+.res-metrics strong { font-size: 18px; color: #0f172a; }
+.green-txt { color: #059669 !important; }
+.blue-txt { color: #0284c7 !important; }
+.purple-txt { color: #7c3aed !important; }
+
+.result-actions {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+}
+.menu-secondary-btn {
+    background: #64748b;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+}
